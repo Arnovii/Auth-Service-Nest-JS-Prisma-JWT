@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './features/auth/auth.module';
 import { UsersModule } from './features/users/users.module';
 import { ConfigModule } from '@nestjs/config'; // Importa ConfigModule
+import { DatabaseModule } from './database/database.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { ConfigModule } from '@nestjs/config'; // Importa ConfigModule
       isGlobal: true,
       envFilePath: ['.env'],
     }),
+    DatabaseModule,
     AuthModule,
     UsersModule
   ],
