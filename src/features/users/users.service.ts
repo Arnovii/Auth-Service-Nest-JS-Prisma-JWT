@@ -10,6 +10,15 @@ import { User } from '@prisma/client';
 export class UsersService {
   constructor(private readonly prisma: PrismaService) { }
 
+    async getAllUsers(){
+    try {
+      const usersList = await this.prisma.user.findMany();
+      return usersList;
+    } catch (error) {
+      throw new BadRequestException(`Hubo un problema al obtener la lista de usuarios. Por favor, intente nuevamente más tarde.${error}`);
+    }
+  }
+
   async findUserByEmail(email: string): Promise<User | null> {
     if (!email || email.trim() === '') return null;
 
@@ -32,7 +41,7 @@ export class UsersService {
       const userCreated = await this.prisma.user.create({
         data: {
           ...data, //(email,username,password)
-          isAdmin: false,
+          admin: false,
           createdAt: new Date(),
         },
       });

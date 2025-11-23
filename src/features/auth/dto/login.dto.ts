@@ -4,7 +4,7 @@ import { IsEmail, IsNotEmpty, IsString, Length,IsOptional } from "class-validato
 
 
 export class LoginDto {
-    @ApiProperty({ example: 'admin@ejemplo.com', description: 'Correo del usuario' })
+    @ApiProperty({ example: 'correo@ejemplo.com', description: 'Correo del usuario' })
     @IsEmail()
     @IsOptional()
     email: string;

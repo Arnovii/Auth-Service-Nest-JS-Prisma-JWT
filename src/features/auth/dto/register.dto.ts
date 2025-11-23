@@ -18,7 +18,7 @@ export class RegisterDto{
   email: string;
 
   @ApiProperty({
-    example: 'juanito20',
+    example: 'juan123',
     description: 'Nombre de usuario (mínimo 5, máximo 20 caracteres)',
     minLength: 5,
     maxLength: 20,
@@ -30,7 +30,7 @@ export class RegisterDto{
   username: string;
 
   @ApiProperty({
-    example: 'P@ssword123',
+    example: '12345678',
     description: 'Contraseña (mínimo 8 caracteres, es encriptada en el backend)',
     minLength: 8,
     maxLength: 255,

@@ -6,6 +6,7 @@ import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import type { PayloadInterface } from '../../common/interfaces/payload.interface';
+import { User } from '@prisma/client'
 
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 
@@ -49,31 +50,41 @@ export class AuthService {
     }
 
     async login(data: LoginDto) {
-        //1. verificar correo
-        const userByEmail = await this.userService.findUserByEmail(data.email)
-        if (!userByEmail) throw new UnauthorizedException(`No existe cuenta asociada al correo ${data.email}`)
-        //2. verificar contraseña
-        const isPasswordValid = await bcryptjs.compare(data.password, userByEmail.password);
-        if (!isPasswordValid) throw new UnauthorizedException(`Contraseña incorrecta`)
+        let user: User | null = null;
 
-        //3. retornar JWT
-        //Paylaod: ¿Que datos NO SENSIBLES van a a viajar en el token? 
+        // 1️⃣ Verificar correo o username
+        if (data.email) {
+            user = await this.userService.findUserByEmail(data.email);
+            if (!user) throw new UnauthorizedException(`No existe cuenta asociada al correo ${data.email}`);
+        } else if (data.username) {
+            user = await this.userService.findUserByUsername(data.username);
+            if (!user) throw new UnauthorizedException(`No existe cuenta asociada al username ${data.username}`);
+        } else {
+            throw new BadRequestException('Debes proporcionar un correo o un username');
+        }
+
+        // 2️⃣ Verificar contraseña
+        const isPasswordValid = await bcryptjs.compare(data.password, user.password);
+        if (!isPasswordValid) throw new UnauthorizedException(`Contraseña incorrecta`);
+
+        // 3️⃣ Retornar JWT
         const payload: PayloadInterface = {
-            id: userByEmail.id,
-            email: userByEmail.email,
-            username: userByEmail.username,
-            isAdmin: userByEmail.admin
+            id: user.id,
+            email: user.email,
+            username: user.username,
+            admin: user.admin,
         };
-        const token = await this.jwtService.signAsync(payload)
+
+        const token = await this.jwtService.signAsync(payload);
 
         return {
-            token: token,
-            id_usuario: userByEmail.id_usuario,
-            username: userByEmail.username,
-            email: userByEmail.email,
-            tipo_usuario: userByEmail.tipo_usuario
-        }
+            token,
+            username: user.username,
+            email: user.email,
+            admin: user.admin,
+        };
     }
+
 
 }
 
