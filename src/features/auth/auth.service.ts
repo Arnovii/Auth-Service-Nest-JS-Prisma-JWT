@@ -1,12 +1,12 @@
 import * as bcryptjs from 'bcryptjs'
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-
 import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import type { PayloadInterface } from '../../common/interfaces/payload.interface';
 import { User } from '@prisma/client'
+import { isEmail } from 'class-validator';
 
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 
@@ -51,16 +51,25 @@ export class AuthService {
 
     async login(data: LoginDto) {
         let user: User | null = null;
+        const { identifier, password } = data; // Desestructuramos para mayor claridad
 
-        // 1️⃣ Verificar correo o username
-        if (data.email) {
-            user = await this.userService.findUserByEmail(data.email);
-            if (!user) throw new UnauthorizedException(`No existe cuenta asociada al correo ${data.email}`);
-        } else if (data.username) {
-            user = await this.userService.findUserByUsername(data.username);
-            if (!user) throw new UnauthorizedException(`No existe cuenta asociada al username ${data.username}`);
-        } else {
-            throw new BadRequestException('Debes proporcionar un correo o un username');
+        // 1️⃣ Determinar si es un correo o un username
+        const isEmailFormat = isEmail(identifier); // Utilizamos la función para verificar el formato de correo
+
+        if (isEmailFormat) {
+            // Intenta buscar por correo electrónico
+            user = await this.userService.findUserByEmail(identifier);
+        }
+
+        if (!user) {
+            // Si no se encontró por correo (o si no tenía formato de correo),
+            // intenta buscar por nombre de usuario (username)
+            user = await this.userService.findUserByUsername(identifier);
+        }
+
+        // ⚠️ Validación final: Si no se encontró en ninguna de las dos formas
+        if (!user) {
+            throw new UnauthorizedException(`No existe cuenta asociada al identificador: ${identifier}`);
         }
 
         // 2️⃣ Verificar contraseña

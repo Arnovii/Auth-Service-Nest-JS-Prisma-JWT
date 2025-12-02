@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { DocumentBuilder, SwaggerModule, ApiExcludeEndpoint } from '@nestjs/swagger';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
@@ -42,7 +42,7 @@ async function bootstrap() {
     swaggerOptions: { persistAuthorization: true } // mantiene token entre reloads
   });
 
-  console.log('Swagger disponible en: /api/docs');
+  console.log('🔎 Swagger disponible en: /api/docs');
 
   
   const port = process.env.PORT ?? 3000;
