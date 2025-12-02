@@ -88,9 +88,10 @@ export class AuthService {
 
         return {
             token,
+            // id:user.id,
             username: user.username,
             email: user.email,
-            admin: user.admin,
+            // admin: user.admin,
         };
     }
 
