@@ -6,6 +6,14 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.enableCors({
+    origin: true, 
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: 'Content-Type, Authorization, Accept',
+    credentials: true, // si usas cookies / auth con credenciales
+    maxAge: 600, // opcional
+  });
+
   app.setGlobalPrefix("api/v1");
 
   //Ejecutar las validaciones realizadas en los DTO's
@@ -44,7 +52,7 @@ async function bootstrap() {
 
   console.log('🔎 Swagger disponible en: /api/docs');
 
-  
+
   const port = process.env.PORT ?? 3000;
   await app.listen(port);
   console.log(
